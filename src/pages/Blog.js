@@ -8,6 +8,7 @@ const Blog = () => {
   const [content, setContent] = useState("");
   const [blogData, setBlogData] = useState([]);
   const [error, setError] = useState(false);
+  const [author, setAuthor] = useState("");
 
   const getData = () => {
     axios
@@ -16,7 +17,19 @@ const Blog = () => {
   };
   const handleSubmit = (e) => {
     e.preventDefault();
-    content.length < 140 ? setError(true) : setError(false);
+    if (content.length < 140) {
+      setError(true);
+    } else {
+      axios.post("http://localhost:3004/articles", {
+        author,
+        content,
+        date: Date.now(),
+      });
+      setError(false);
+      setAuthor("");
+      setContent("");
+      getData();
+    }
   };
 
   useEffect(() => getData(), []);
@@ -28,11 +41,17 @@ const Blog = () => {
       <h1>Blog</h1>
 
       <form onSubmit={(e) => handleSubmit(e)}>
-        <input type="text" placeholder="Nom" />
+        <input
+          type="text"
+          placeholder="Nom"
+          onChange={(e) => setAuthor(e.target.value)}
+          value={author}
+        />
         <textarea
           style={{ border: error ? "1px solid red" : "1px solid #61dafb" }}
           placeholder="Message"
           onChange={(e) => setContent(e.target.value)}
+          value={content}
         ></textarea>
         {error && <p>Veuillez écrire un minimun de 140 caractères</p>}
         <input type="submit" value="Envoyer" />
